@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Editar Vídeo</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+  </head>
+  <body class="bg-gray-50 text-gray-800 min-h-screen flex items-center justify-center">
+    <div class="bg-white shadow-xl rounded-2xl p-8 w-full max-w-lg">
+      <h1 class="text-2xl font-bold text-yellow-500 mb-6 text-center">Editar Vídeo</h1>
+
+      <form id="videoForm" class="space-y-4">
+        <div>
+          <label class="block text-gray-700 mb-1">Título</label>
+          <input
+            type="text"
+            name="title"
+            class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-yellow-500 focus:outline-none"
+            required
+          />
+        </div>
+
+        <div>
+          <label class="block text-gray-700 mb-1">Descrição</label>
+          <textarea
+            name="description"
+            class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-yellow-500 focus:outline-none"
+            rows="3"
+            required
+          ></textarea>
+        </div>
+
+        <div>
+          <label class="block text-gray-700 mb-1">Duração (segundos)</label>
+          <input
+            type="number"
+            name="duration"
+            class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-yellow-500 focus:outline-none"
+            required
+          />
+        </div>
+
+        <button
+          type="submit"
+          class="w-full bg-yellow-500 hover:bg-yellow-600 text-white font-semibold py-2 rounded-lg transition"
+        >
+          Atualizar
+        </button>
+      </form>
+
+      <a
+        href="index.html"
+        class="block text-center text-yellow-500 hover:underline mt-4"
+      >
+        ← Voltar à lista
+      </a>
+    </div>
+
+    <script>
+      const params = new URLSearchParams(window.location.search);
+      const id = params.get("id");
+
+      async function loadVideo() {
+        const res = await fetch(`http://localhost:3333/videos`);
+        const videos = await res.json();
+        const video = videos.find((v) => v.id === id);
+        if (!video) return alert("Vídeo não encontrado.");
+
+        document.querySelector("[name=title]").value = video.title;
+        document.querySelector("[name=description]").value = video.description;
+        document.querySelector("[name=duration]").value = video.duration;
+      }
+
+      document.getElementById("videoForm").addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const data = Object.fromEntries(new FormData(e.target).entries());
+        await fetch(`http://localhost:3333/videos/${id}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(data),
+        });
+        window.location.href = "index.html";
+      });
+
+      loadVideo();
+    </script>
+  </body>
+</html>
